@@ -1,0 +1,82 @@
+#include <iostream>
+#include <list>
+#include <vector>
+#include <unordered_map>
+#include <limits>
+
+using namespace std;
+
+string find_min(unordered_map<string, int> costs, vector<string>& processed)
+{
+	int lowest = numeric_limits<int> ::max();
+	string lowest_node;
+
+	for (auto& pair : costs)
+	{
+		string node = pair.first;
+		int cost = pair.second;
+		if (find(processed.begin(), processed.end(), node) == processed.end() && cost < lowest)
+		{
+			lowest = cost;
+			lowest_node = node;
+		}
+	}
+	if (lowest_node.empty())
+		return "";
+	else
+		return lowest_node;
+
+}
+
+
+int main()
+{
+	unordered_map<string, unordered_map<string, int>> graph;
+	
+	graph["start"]["a"] = 6;
+	graph["start"]["b"] = 2;
+	graph["a"]["fin"] = 1;
+	graph["b"]["a"] = 3;
+	graph["b"]["fin"] = 5;
+	graph["fin"] = {};
+
+	int infinity = numeric_limits<int>::max();
+	
+	unordered_map<string, int> costs;
+
+	costs["a"] = 6;
+	costs["b"] = 2;
+	costs["fin"] = infinity;
+
+	unordered_map<string, string> parents;
+
+	parents["a"] = "start";
+	parents["b"] = "start";
+	parents["fin"];
+
+	vector<string> processed;
+
+	string node = find_min(costs, processed);
+	while (!node.empty())
+	{
+		int cost = costs[node];
+		auto& neighbors = graph[node];
+
+		for (auto& neighbor : neighbors)
+		{
+			string n = neighbor.first;
+			int new_cost = cost + neighbor.second;
+			if (costs.at(n) > new_cost)
+			{
+				costs.at(n) = new_cost;
+				parents[n] = node;
+
+			}
+			
+		}
+		processed.push_back(node);
+		node = find_min(costs, processed);
+
+	}
+	cout << costs.at("fin");
+}
